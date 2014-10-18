@@ -14,7 +14,11 @@ library(rESN)
 ```
 
 ## Example
-
+U.train is the covariate matrix. Each row is an observation in time. Each column is a covariate.
+Y.train.noisy is a response in that depends nonlinearly on U over time.
+n.neurons defines the number of neurons in the "reservoir" (hidden layer).
+density is the density of non-zero connections in the reservoir.
+lambda is the ridge regression tuning parameter
 ```r
 data(esn_data)
 
