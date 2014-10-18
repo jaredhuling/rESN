@@ -124,7 +124,7 @@ newESN <- function(Y, U, n.neurons = 50L, density = 0.5,
                    leak.rate = 0.3, lambda = 1e-7,
                    spectral.radius = 1.15) {
   n.neurons <- as.integer(n.neurons)
-  stopifnot(density >= 0.01 & density <= 1)
+  stopifnot(density >= 0.0001 & density <= 1)
   net <- new("esn", tfRes = tanh, tfReadout = tanh, 
              leak.rate = leak.rate,
              lambda = lambda,

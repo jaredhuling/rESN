@@ -32,7 +32,7 @@ newESN(Y, U, n.neurons = 50L, density = 0.5, back.density = 0.5,
   more}
 
   \item{spectral.radius}{positive double corresponding to
-  the spectral radius of the reservoir}
+  the spectral radius of the reservoirnewE}
 }
 \value{
 An S4 object with class "esn"
