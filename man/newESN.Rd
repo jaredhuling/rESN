@@ -3,7 +3,7 @@
 \title{Intialize an Echo State Network}
 \usage{
 newESN(Y, U, n.neurons = 50L, density = 0.5, back.density = 0.5,
-  leak.rate = 0.3, lambda = 1e-07)
+  leak.rate = 0.3, lambda = 1e-07, spectral.radius = 1.15)
 }
 \arguments{
   \item{Y}{input matrix (can be multivariate) or vector of
@@ -30,6 +30,9 @@ newESN(Y, U, n.neurons = 50L, density = 0.5, back.density = 0.5,
   \item{lambda}{double corresponding to the tuning
   parameter for ridge regression. Higher values penalize
   more}
+
+  \item{spectral.radius}{positive double corresponding to
+  the spectral radius of the reservoir}
 }
 \value{
 An S4 object with class "esn"

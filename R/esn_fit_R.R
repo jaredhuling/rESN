@@ -90,7 +90,7 @@ initweights <- function(n1, n2, d, enforce_esp = TRUE, spectral.radius = 1.15) {
 #' response (in time) to the previous response. This is not always used in ESNs
 #' @param leak.rate double between 0 and 1. Corresponds to the rate for leaky integration
 #' @param lambda double corresponding to the tuning parameter for ridge regression. Higher values penalize more
-#' @param spectral.radius positive double corresponding to the spectral radius of the reservoir
+#' @param spectral.radius positive double corresponding to the spectral radius of the reservoirnewE
 #' @return An S4 object with class "esn" 
 #' @export
 #' @examples
@@ -128,6 +128,7 @@ newESN <- function(Y, U, n.neurons = 50L, density = 0.5,
   net <- new("esn", tfRes = tanh, tfReadout = tanh, 
              leak.rate = leak.rate,
              lambda = lambda,
+             spectral.radius = spectral.radius,
              u = U,
              Win = initweights(n.neurons, ncol(U), d = 1, enforce_esp = FALSE),
              W = initweights(n.neurons, n.neurons, density, spectral.radius = spectral.radius),
