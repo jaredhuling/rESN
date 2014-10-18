@@ -1,11 +1,11 @@
-Package: RESN
+Package: rESN
 Type: Package
-Title: What the package does (short line)
+Title: Echo State Networks in R
 Version: 1.0
 Date: 2014-10-08
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Author: Jared Huling
+Maintainer: <jaredhuling@gmail.com>
+Description: Fits Echo State Networks in R
 License: What Licence is it under ?
 Imports: Rcpp (>= 0.11.0)
 Depends: svd, RcppEigen (>= 0.3.2.1.1), Matrix

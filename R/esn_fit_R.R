@@ -135,7 +135,7 @@ setGeneric("train", function(net) 0)
 setMethod("train", signature(net = "esn"), function(net) {
   net@Wout <- .Call("train_esn", Yd = net@Yd, u = net@u, Win = net@Win, 
                     W = net@W, Wback = net@Wback, tfRes = "nothing",
-                    leakrate = net@leak.rate, lambda = net@lambda, package = "RESN")
+                    leakrate = net@leak.rate, lambda = net@lambda, package = "rESN")
   net
 })
 
@@ -155,7 +155,7 @@ setGeneric("predict", function(net, u) 0)
 setMethod("predict", signature(net = "esn", u = "matrix"), function(net, u) {
   Yh <- .Call("predict_esn", ncolY = ncol(net@Yd), u = u, Win = net@Win, 
               W = net@W, Wback = net@Wback, Wout = net@Wout, tfRes = "nothing",
-              leakrate = net@leak.rate, lambda = net@lambda, package = "RESN")
+              leakrate = net@leak.rate, lambda = net@lambda, package = "rESN")
   Yh
 })
 
@@ -163,7 +163,7 @@ setMethod("predict", signature(net = "esn", u = "matrix"), function(net, u) {
 setMethod("predict", signature(net = "esn", u = "missing"), function(net) {
   Yh <- .Call("predict_esn", ncolY = ncol(net@Yd), u = net@u, Win = net@Win, 
               W = net@W, Wback = net@Wback, Wout = net@Wout, tfRes = "nothing",
-              leakrate = net@leak.rate, lambda = net@lambda, package = "RESN")
+              leakrate = net@leak.rate, lambda = net@lambda, package = "rESN")
   Yh
 })
 
