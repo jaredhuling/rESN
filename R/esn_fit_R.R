@@ -25,6 +25,24 @@ check_esn <- function(object) {
     errors <- c(errors, msg)
   }
   
+  length_lr <- length(object@spectral.radius)
+  if (length_lr != 1) {
+    msg <- paste("spectral.radius is length ", length_lr, ".  Should be 1", sep = "")
+    errors <- c(errors, msg)
+  }
+  
+  if (object@spectral.radius < 0) {
+    msg <- paste("spectral.radius is negative. It should be positive", sep = "")
+    errors <- c(errors, msg)
+  }
+  
+  if (object@lambda < 0) {
+    msg <- paste("lambda is negative. It should be positive", sep = "")
+    errors <- c(errors, msg)
+  }
+  
+  
+  
   #length_name <- length(object@name)
   #if (length_name != 1) {
   #  msg <- paste("Name is length ", length_name, ".  Should be 1", sep = "")
@@ -40,6 +58,7 @@ setClass("esn", representation(tfRes = "function",
                                tfReadout = "function", 
                                leak.rate = "numeric",
                                lambda = "numeric",
+                               spectral.radius = "numeric",
                                u = "matrix",
                                Win = "all.mat",
                                W = "all.mat",
@@ -49,13 +68,13 @@ setClass("esn", representation(tfRes = "function",
          prototype(Wout = matrix (0)),
          validity = check_esn)
 
-initweights <- function(n1, n2, d, enforce_esp = TRUE) {
+initweights <- function(n1, n2, d, enforce_esp = TRUE, spectral.radius = 1.15) {
   require(Matrix)
   mask <- matrix(runif(n1 * n2), ncol = n2) < d
   W <- (matrix(runif(n1 * n2), ncol = n2) - 0.5) * mask
   if (n1 == n2 & enforce_esp) {
     rhoW <- abs(propackSVD(W, neig = 1L, opts = list(tol = 1e-7, maxiter = 1e4))$d)
-    p <- 1.15 / rhoW
+    p <- spectral.radius / rhoW
     W <- p * W
   }
   as(W, "sparseMatrix")
@@ -71,6 +90,7 @@ initweights <- function(n1, n2, d, enforce_esp = TRUE) {
 #' response (in time) to the previous response. This is not always used in ESNs
 #' @param leak.rate double between 0 and 1. Corresponds to the rate for leaky integration
 #' @param lambda double corresponding to the tuning parameter for ridge regression. Higher values penalize more
+#' @param spectral.radius positive double corresponding to the spectral radius of the reservoir
 #' @return An S4 object with class "esn" 
 #' @export
 #' @examples
@@ -101,16 +121,17 @@ initweights <- function(n1, n2, d, enforce_esp = TRUE) {
 #' 
 newESN <- function(Y, U, n.neurons = 50L, density = 0.5, 
                    back.density = 0.5,
-                   leak.rate = 0.3, lambda = 1e-7) {
+                   leak.rate = 0.3, lambda = 1e-7,
+                   spectral.radius = 1.15) {
   n.neurons <- as.integer(n.neurons)
   stopifnot(density >= 0.01 & density <= 1)
   net <- new("esn", tfRes = tanh, tfReadout = tanh, 
              leak.rate = leak.rate,
              lambda = lambda,
              u = U,
-             Win = initweights(n.neurons, ncol(U), d = 1),
-             W = initweights(n.neurons, n.neurons, density),
-             Wback = initweights(n.neurons, 1L + ncol(Y), back.density),
+             Win = initweights(n.neurons, ncol(U), d = 1, enforce_esp = FALSE),
+             W = initweights(n.neurons, n.neurons, density, spectral.radius = spectral.radius),
+             Wback = initweights(n.neurons, 1L + ncol(Y), back.density, enforce_esp = FALSE),
              Yd = as.matrix(Y) )
 }
 
