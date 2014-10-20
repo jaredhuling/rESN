@@ -45,14 +45,15 @@ RcppExport SEXP train_esn(
     
     const int nrow_W = WW.rows();
     const int nobs = Y.rows();
+    const int nvars = UU.cols();
     
     
-    MatrixXd X(MatrixXd(1 + nrow_W, nobs - 1));
-    VectorXd xx(nrow_W);
-    MatrixXd WWout(MatrixXd(Y.cols(), nrow_W + 1));
+    MatrixXd X(MatrixXd(nobs - 1, 1 + nrow_W));
+    MatrixXd xx(MatrixXd(nrow_W, 1));
+    MatrixXd WWout(MatrixXd(Y.cols(), 1 + nrow_W));
     xx.fill(0);
     VectorXd y_add1(Y.cols() + 1);
-    VectorXd uurow(UU.cols());
+    VectorXd uurow(nvars);
 
 
     for (int k = 0; k < nobs - 1; k++) {
@@ -61,7 +62,9 @@ RcppExport SEXP train_esn(
 
       xx = tanh((MatrixXd(WW * xx) + ( MatrixXd(WWin * uurow) + (MatrixXd(WWback * y_add1) )) )).array() * 
             (1 - lr) + xx.array() * lr;
-      X.col(k) << 1, xx;
+
+      X.row(k) << 1, xx.adjoint();
+      
     }
 
     // + MatrixXd( (WWback * y_add1).addTo( WWin * UU.row(k)) ) 
@@ -70,8 +73,10 @@ RcppExport SEXP train_esn(
     //WWout = Y.bottomRows(nobs - 2).adjoint() * X.rightCols(X.cols() - 1).adjoint() * (XXt(X.rightCols(X.cols() - 1)).array() + 
     //        lam * MatrixXd::Identity(nrow_W + 1, nrow_W + 1).array()).matrix().llt().solve(MatrixXd::Identity(nrow_W + 1, nrow_W + 1));
 
-    WWout = (XXt(X.rightCols(X.cols() - 1)).array() + 
-            lam * MatrixXd::Identity(nrow_W + 1, nrow_W + 1).array()).matrix().llt().solve(X.rightCols(X.cols() - 1) * Y.bottomRows(nobs - 2)).adjoint();
+
+    WWout = (XtX(X.bottomRows(nobs - 2)).array() + 
+            lam * MatrixXd::Identity(nrow_W + 1, nrow_W + 1).array()).matrix().llt().solve(X.bottomRows(nobs - 2).adjoint() 
+               * Y.bottomRows(nobs - 2)).adjoint();
 
     return (wrap(WWout));
     
@@ -119,13 +124,14 @@ RcppExport SEXP predict_esn(
     
     const int nrow_W = WW.rows();
     const int nobs = UU.rows();
+    const int nvars = UU.cols();
 
-    VectorXd xx(nrow_W);
+    MatrixXd xx(MatrixXd(nrow_W, 1));
     xx.fill(0);
-    VectorXd xx1(nrow_W + 1);
+    MatrixXd xx1(MatrixXd(nrow_W + 1, 1));
     VectorXd y_add1(ncols + 1);
-    VectorXd uurow(UU.cols());
-    MatrixXd Yh(MatrixXd(UU.rows(), ncols));
+    VectorXd uurow(nvars);
+    MatrixXd Yh(MatrixXd(nobs, ncols));
     
 
     for (int k = 0; k < nobs - 1; k++) {
@@ -134,7 +140,8 @@ RcppExport SEXP predict_esn(
 
       xx = tanh((MatrixXd(WW * xx) + ( MatrixXd(WWin * uurow) + (MatrixXd(WWback * y_add1) )) )).array() * 
             (1 - lr) + xx.array() * lr;
-      xx1 << 1, xx;
+      xx1 << 1, 
+      xx;
       Yh.row(k+1) = WWout * xx1;
     }
 
